@@ -24,6 +24,8 @@ const userType=new GraphQLObjectType({
     })
 })   
 
+
+
 const commentType=new GraphQLObjectType({
     name:"User",
     fields:()=>({
@@ -39,6 +41,8 @@ const commentType=new GraphQLObjectType({
         }
     })
 }) 
+
+
 const rootQuery=new GraphQLObjectType({
     name:"query",
     fields:{
@@ -47,7 +51,6 @@ const rootQuery=new GraphQLObjectType({
         args:{ id : { type:GraphQLID } },
         resolve: async(parent,args)=>{
             return await user.findById(args.id)
-            
         }},
         users:{
             type:new GraphQLList(userType),
@@ -71,8 +74,44 @@ const rootQuery=new GraphQLObjectType({
         },
  }
 })
-
+const Mutation=new GraphQLObjectType({
+    name:"Mutation",
+    fields:{
+        user:{
+            type:userType,
+            args:{
+                name:GraphQLString,
+                email:GraphQLString,
+                comment:GraphQLString,
+            },
+            resolve(parent,args){
+                let user= user.create({
+                    name:args.name,
+                    email:args.email,
+                    comment:args.comment,
+                 })
+                return user.save()
+            }
+        },
+        comment:{
+            type:commentType,
+            args:{
+                userid:GraphQLString,
+                message:GraphQLString,
+                rating:GraphQLInt,
+            },
+            resolve(parent,args){
+               let comment= comment({
+                    userid:args.userid,
+                    message:args.message,
+                    rating:args.rating,
+                })
+               return comment.save()
+            }
+        }
+    }
+})
 module.exports=new GraphQLSchema({
     query:rootQuery,
-    
+    mutation:Mutation,
 })
