@@ -6,7 +6,6 @@ const {
     GraphQLString,
     GraphQLInt} =require("graphql")
 const axios=require("axios")
-// github commits commits
   
 const userType=new GraphQLObjectType({
     name:"User",
