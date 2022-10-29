@@ -5,7 +5,7 @@ const {
     GraphQLID,
     GraphQLString,
     GraphQLInt} =require("graphql")
-const {axios}=require("axios")
+const axios=require("axios")
 
   
 const userType=new GraphQLObjectType({
@@ -13,6 +13,7 @@ const userType=new GraphQLObjectType({
     fields:()=>({
         id : { type : GraphQLID },
         name : { type : GraphQLString },
+        username : { type : GraphQLString },
         email : { type : GraphQLString },
         phone : { type : GraphQLString},
         address : { type : GraphQLString},
@@ -23,7 +24,7 @@ const userType=new GraphQLObjectType({
 
     })
 })    
-const rootQuery={
+const rootQuery=new GraphQLObjectType({
     name:"query",
     fields:{
         user:{
@@ -31,19 +32,25 @@ const rootQuery={
         args:{id : { type:GraphQLID } },
         resolve: async(parent,args)=>{
             const userList=await axios.get("https://jsonplaceholder.typicode.com/users")
-            return userList.find(user=>user.id===args.id)
-        }
-        
-        },
+            console.log(args.id)
+            console.log(userList.data)
+            console.log(typeof args.id)
+            return userList?.data?.find(user=>{
+                
+                return user.id==args.id
+            })
+        }},
         users:{
-            type:userType,
-            args:{id : { type:GraphQLID } },
+            type:new GraphQLList(userType),
             resolve: async(parent,args)=>{
                 const userList=await axios.get("https://jsonplaceholder.typicode.com/users")
-                return userList
+                console.log(userList.data)
+                return userList.data
             }
         }
  }
-}
+})
 
-module.exports=new GraphQLSchema(rootQuery)
+module.exports=new GraphQLSchema({
+    query:rootQuery
+})
